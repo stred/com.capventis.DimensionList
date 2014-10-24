@@ -61,7 +61,9 @@ define( ["jquery", "qlik"], function ( $, qlik ) {
 
 		paint: function ( $element, layout ) {
 
-			var self = this, html = '<table width="100%">';
+			var divName = layout.qInfo.qId;
+
+			var self = this, html = '<table width="100%" id="dimensionListTable_' + divName + '">';
 			var dimensions = layout.qHyperCube.qDimensionInfo;
 			
 			
@@ -80,13 +82,13 @@ define( ["jquery", "qlik"], function ( $, qlik ) {
 					{
 						vCurrentSelected=dimensions[0].qGroupFieldDefs;
 						//console.info('Setting initial: ' + dimensions[0].qGroupFieldDefs);
-						selectDimension(dimensions[0].qFallbackTitle, dimensions[0].qGroupFieldDefs, varName);
+						selectDimension(dimensions[0].qFallbackTitle, dimensions[0].qGroupFieldDefs, varName, divName);
 					}
 				
 					for(var dim in dimensions) {
 						var vBGColor=dimensions[dim].qGroupFieldDefs==vCurrentSelected ? '#00ff00' : '#ffffff';
 							
-						html += '<tr><td style="background-color: '+ vBGColor +'" onclick="selectDimension(\'' + dimensions[dim].qFallbackTitle + '\', \'' + dimensions[dim].qGroupFieldDefs + '\', \'' + varName + '\')">';
+						html += '<tr><td style="background-color: '+ vBGColor +'" onclick="selectDimension(\'' + dimensions[dim].qFallbackTitle + '\', \'' + dimensions[dim].qGroupFieldDefs + '\', \'' + varName + '\', \'' + divName + '\')">';
 						html += dimensions[dim].qFallbackTitle;
 						html += "</td></tr>";
 						
@@ -104,16 +106,14 @@ define( ["jquery", "qlik"], function ( $, qlik ) {
 
 } );
 
-function selectDimension(dimText, dimName, varName)
+function selectDimension(dimText, dimName, varName, divName)
 {
-	//console.info('Setting ' + varName + ' to ' + dimName);
+	// if the varName is passed, put the dimension into the variable 
 	if(varName)
 		_app.variable.setContent(varName, dimName);
-	
-	console.info('Clear cells and set '+ dimText +' to Green');
-	$("td").css('background-color', '#ffffff');
-
-	$("td").filter(function() {
+		
+	// First locate the table, then set each td to a white background, finally filter the tds by dimension text and set to green background 	
+	$("#dimensionListTable_"+divName).find("td").css('background-color', '#ffffff').filter(function() {
 		return $(this).text() == dimText;
 	}).css('background-color', '#00ff00');
 }

@@ -5,7 +5,20 @@ define( ["jquery", "qlik"], function ( $, qlik ) {
 	'use strict';
 
 	_app=qlik.currApp();
-	
+	function createVariable ( name ) {
+		//from 2.1: check if variable exists
+		if ( _app.variable.getByName ) {
+			_app.variable.getByName( name ).then( function () {
+				//variable already exist
+			}, function () {
+				//create variable
+				_app.variable.create( name );
+			} );
+		} else {
+			//create variable - ignore errors
+			_app.variable.create( name );
+		}
+	}
 	return {
 		initialProperties: {
 			version: 1.0,
@@ -70,7 +83,7 @@ define( ["jquery", "qlik"], function ( $, qlik ) {
 			var vVariableValue='Test value';
 			var varName=layout.variable.variablename;
 
-			_app.variable.create(varName);
+			createVariable(varName);
 			
 			_app.variable.getContent(varName, function(varContent) { 
 				
